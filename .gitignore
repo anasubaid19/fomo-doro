@@ -1,0 +1,7 @@
+.build/
+FomoDoro.app/
+FomoDoro.iconset/
+FomoDoro.icns
+FomoDoro.dmg
+dmg-staging/
+.DS_Store
