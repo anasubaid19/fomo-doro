@@ -19,6 +19,12 @@ struct FomoDoroApp: App {
         NSApplication.shared.setActivationPolicy(.accessory)
         UNUserNotificationCenter.current().delegate = NotificationDelegate.shared
         UpdateChecker.startBackgroundChecks()
+        // ponytail: defer notification permission until after launch — requesting it during
+        // App.init crashed CI binaries (pre-macOS-26 SDK) on macOS 26.
+        Task { @MainActor [store] in
+            try? await Task.sleep(for: .seconds(1))
+            store.requestNotificationPermission()
+        }
     }
 
     // ponytail: single-instance by process name so the dev binary and the .app bundle

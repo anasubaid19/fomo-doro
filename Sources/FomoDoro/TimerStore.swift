@@ -23,7 +23,6 @@ final class TimerStore: ObservableObject {
         self.modelContext = modelContext
         restoreState()
         startTickLoop()
-        requestNotificationPermission()
     }
 
     var isRunning: Bool {
@@ -222,7 +221,7 @@ final class TimerStore: ObservableObject {
         UNUserNotificationCenter.current().add(request)
     }
 
-    private func requestNotificationPermission() {
+    func requestNotificationPermission() {
         guard notificationsAvailable else { return }
         UNUserNotificationCenter.current().requestAuthorization(options: [.alert, .sound]) { _, _ in }
     }

@@ -2,6 +2,12 @@
 
 All notable changes to FomoDoro.
 
+## [1.2.1] - 2026-08-15
+
+### Fixed
+
+- Crash on launch on macOS 26 for the GitHub-release build (built with an older SDK); releases now build on a macOS 26 runner and notification permission is requested after launch
+
 ## [1.2.0] - 2026-08-15
 
 ### Added
