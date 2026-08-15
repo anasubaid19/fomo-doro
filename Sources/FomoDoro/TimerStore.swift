@@ -197,8 +197,7 @@ final class TimerStore: ObservableObject {
     }
 
     private func playCompletionSound() {
-        guard AppSettings.soundEnabled else { return }
-        NSSound(named: "Glass")?.play()
+        SoundPlayer.play(AppSettings.soundChoice)
     }
 
     // ponytail: UNUserNotificationCenter requires a real .app bundle; bare `swift run` has none.

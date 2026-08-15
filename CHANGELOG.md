@@ -2,6 +2,12 @@
 
 All notable changes to FomoDoro.
 
+## [1.2.0] - 2026-08-15
+
+### Added
+
+- Completion sound picker: choose from system presets (Glass, Ping, Pop, Submarine, Basso, Funk), none, or your own audio file with preview
+
 ## [1.1.0] - 2026-08-15
 
 ### Added

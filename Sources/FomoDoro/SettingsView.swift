@@ -1,18 +1,28 @@
 import SwiftUI
 import AppKit
 import ServiceManagement
+import UniformTypeIdentifiers
 
 struct SettingsView: View {
     @AppStorage("focusDuration") private var focus = 25
     @AppStorage("shortBreakDuration") private var shortBreak = 5
     @AppStorage("longBreakDuration") private var longBreak = 15
     @AppStorage("longBreakInterval") private var interval = 4
-    @AppStorage("soundEnabled") private var soundEnabled = true
+    @AppStorage("soundChoice") private var soundChoice = "system:Glass"
     @AppStorage("autostartNext") private var autostartNext = false
 
     @State private var launchError: String?
     @State private var updateResult: String?
     @State private var updateAvailable = false
+    @State private var showFileImporter = false
+
+    private var isCustomSound: Bool { soundChoice.hasPrefix("custom:") }
+
+    private var customFileName: String {
+        guard isCustomSound else { return "" }
+        let path = String(soundChoice.dropFirst("custom:".count))
+        return URL(fileURLWithPath: path).lastPathComponent
+    }
 
     var body: some View {
         Form {
@@ -23,8 +33,30 @@ struct SettingsView: View {
                 Stepper("Long break every: \(interval) sessions", value: $interval, in: 1...12)
             }
             Section("Behavior") {
-                Toggle("Play sound", isOn: $soundEnabled)
                 Toggle("Auto-start next session", isOn: $autostartNext)
+
+                Picker("Completion sound", selection: $soundChoice) {
+                    Text("None").tag("none")
+                    ForEach(SoundPlayer.systemPresets, id: \.self) { name in
+                        Text(name).tag("system:\(name)")
+                    }
+                    if isCustomSound {
+                        Text("Custom file").tag(soundChoice)
+                    }
+                }
+
+                HStack {
+                    Button("Choose sound file…") { showFileImporter = true }
+                    Button("Preview") { SoundPlayer.play(soundChoice) }
+                    if isCustomSound {
+                        Text(customFileName)
+                            .font(.caption)
+                            .foregroundStyle(.secondary)
+                            .lineLimit(1)
+                    }
+                }
+            }
+            Section("General") {
                 Toggle("Launch at login", isOn: launchAtLogin)
                 if let error = launchError {
                     Text(error)
@@ -62,6 +94,14 @@ struct SettingsView: View {
             }
         }
         .formStyle(.grouped)
+        .fileImporter(
+            isPresented: $showFileImporter,
+            allowedContentTypes: [.audio]
+        ) { result in
+            if case .success(let url) = result {
+                soundChoice = "custom:\(url.path)"
+            }
+        }
     }
 
     private var launchAtLogin: Binding<Bool> {

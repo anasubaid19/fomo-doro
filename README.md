@@ -11,7 +11,7 @@ A native macOS menu bar pomodoro timer with task tracking and focus analytics. S
 - **Survives restarts** — timer phase and cycle position are restored after quit/relaunch
 - **Tasks** — to-do list with pomodoro estimates; completed sessions auto-increment the active task
 - **Analytics** — today's focus/break minutes, streak, last-7-days chart, lifetime totals
-- **Notifications & sound** — on session completion
+- **Notifications & sound** — on session completion, with a sound picker (system presets or your own audio file)
 - **Update notifications** — tells you when a new release is on GitHub
 - **Quick note** — scratchpad tab for jotting things down
 - **Launch at login** — optional
