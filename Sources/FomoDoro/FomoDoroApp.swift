@@ -1,6 +1,7 @@
 import SwiftUI
 import SwiftData
 import AppKit
+import UserNotifications
 
 @main
 struct FomoDoroApp: App {
@@ -16,6 +17,8 @@ struct FomoDoroApp: App {
         container = c
         _store = StateObject(wrappedValue: TimerStore(modelContext: c.mainContext))
         NSApplication.shared.setActivationPolicy(.accessory)
+        UNUserNotificationCenter.current().delegate = NotificationDelegate.shared
+        UpdateChecker.startBackgroundChecks()
     }
 
     // ponytail: single-instance by process name so the dev binary and the .app bundle

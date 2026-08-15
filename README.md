@@ -12,6 +12,9 @@ A native macOS menu bar pomodoro timer with task tracking and focus analytics. S
 - **Tasks** — to-do list with pomodoro estimates; completed sessions auto-increment the active task
 - **Analytics** — today's focus/break minutes, streak, last-7-days chart, lifetime totals
 - **Notifications & sound** — on session completion
+- **Update notifications** — tells you when a new release is on GitHub
+- **Quick note** — scratchpad tab for jotting things down
+- **Launch at login** — optional
 - **Settings** — durations, long-break interval, sound, auto-start next session
 
 ## Download & Install
@@ -39,8 +42,8 @@ swift run                     # run in dev (no notifications in dev mode)
 ## Roadmap
 
 - Export analytics to CSV
-- Launch at login
 - iCloud sync
+- Auto-update via Sparkle (needs Apple Developer ID)
 
 ## License
 

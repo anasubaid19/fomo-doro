@@ -23,27 +23,35 @@ struct TaskListView: View {
             .padding(.horizontal, 10)
             .padding(.vertical, 8)
 
-            if tasks.isEmpty {
-                ContentUnavailableView(
-                    "No tasks yet",
-                    systemImage: "checklist",
-                    description: Text("Add a task to track your pomodoros.")
-                )
-            } else {
-                List {
-                    ForEach(tasks) { task in
-                        TaskRow(task: task)
-                            .contentShape(Rectangle())
-                            .onTapGesture {
-                                store.activeTask = (store.activeTask === task) ? nil : task
+            List {
+                ForEach(tasks) { task in
+                    TaskRow(task: task)
+                        .contentShape(Rectangle())
+                        .onTapGesture {
+                            store.activeTask = (store.activeTask === task) ? nil : task
+                        }
+                        .accessibilityAction {
+                            store.activeTask = (store.activeTask === task) ? nil : task
+                        }
+                        .swipeActions(edge: .trailing, allowsFullSwipe: true) {
+                            Button(role: .destructive) {
+                                delete(task)
+                            } label: {
+                                Label("Delete", systemImage: "trash")
                             }
-                            .accessibilityAction {
-                                store.activeTask = (store.activeTask === task) ? nil : task
-                            }
-                    }
-                    .onDelete(perform: delete)
+                        }
                 }
-                .listStyle(.inset)
+                .onDelete(perform: delete)
+            }
+            .listStyle(.inset)
+            .overlay {
+                if tasks.isEmpty {
+                    ContentUnavailableView(
+                        "No tasks yet",
+                        systemImage: "checklist",
+                        description: Text("Add a task to track your pomodoros.")
+                    )
+                }
             }
         }
     }
@@ -57,6 +65,14 @@ struct TaskListView: View {
             try? context.save()
         }
         newTitle = ""
+    }
+
+    private func delete(_ task: TaskItem) {
+        withAnimation(.timingCurve(0.23, 1, 0.32, 1, duration: 0.2)) {
+            if store.activeTask === task { store.activeTask = nil }
+            context.delete(task)
+            try? context.save()
+        }
     }
 
     private func delete(at offsets: IndexSet) {

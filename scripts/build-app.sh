@@ -3,11 +3,21 @@ set -euo pipefail
 
 swift build -c release
 
+# ponytail: inject the latest git tag as the bundle version so it never drifts
+VERSION="$(git describe --tags --abbrev=0 2>/dev/null | sed 's/^v//')"
+VERSION="${VERSION:-0.0.0}"
+
 APP="FomoDoro.app"
 rm -rf "$APP"
 mkdir -p "$APP/Contents/MacOS" "$APP/Contents/Resources"
 cp .build/release/FomoDoro "$APP/Contents/MacOS/FomoDoro"
-cp scripts/Info.plist "$APP/Contents/Info.plist"
+
+TMP_PLIST="$(mktemp)"
+cp scripts/Info.plist "$TMP_PLIST"
+/usr/libexec/PlistBuddy -c "Set :CFBundleShortVersionString $VERSION" "$TMP_PLIST"
+/usr/libexec/PlistBuddy -c "Set :CFBundleVersion $VERSION" "$TMP_PLIST"
+cp "$TMP_PLIST" "$APP/Contents/Info.plist"
+rm "$TMP_PLIST"
 
 ICONSET="FomoDoro.iconset"
 rm -rf "$ICONSET"

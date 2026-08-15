@@ -9,9 +9,9 @@
     <key>CFBundleIdentifier</key>
     <string>dev.anasubaid.fomodoro</string>
     <key>CFBundleVersion</key>
-    <string>1.0</string>
+    <string>1.1.0</string>
     <key>CFBundleShortVersionString</key>
-    <string>1.0</string>
+    <string>1.1.0</string>
     <key>CFBundleExecutable</key>
     <string>FomoDoro</string>
     <key>CFBundlePackageType</key>

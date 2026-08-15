@@ -3,7 +3,7 @@ import SwiftData
 import AppKit
 
 enum Tab: Hashable {
-    case tasks, stats, settings
+    case tasks, notes, stats, settings
 }
 
 struct ContentView: View {
@@ -16,6 +16,7 @@ struct ContentView: View {
             Divider()
             Picker("", selection: $tab) {
                 Text("Tasks").tag(Tab.tasks)
+                Text("Notes").tag(Tab.notes)
                 Text("Stats").tag(Tab.stats)
                 Text("Settings").tag(Tab.settings)
             }
@@ -26,6 +27,7 @@ struct ContentView: View {
             Group {
                 switch tab {
                 case .tasks: TaskListView()
+                case .notes: NotesView()
                 case .stats: AnalyticsView()
                 case .settings: SettingsView()
                 }
