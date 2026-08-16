@@ -34,5 +34,8 @@ struct ContentView: View {
             .frame(width: 360, height: 380)
         }
         .frame(width: 360)
+        .onAppear {
+            store.retryNotificationPermissionIfNeeded()
+        }
     }
 }

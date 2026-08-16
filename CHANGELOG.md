@@ -2,6 +2,13 @@
 
 All notable changes to FomoDoro.
 
+## [1.4.1] - 2026-08-16
+
+### Fixed
+
+- Completion feedback: notification permission is retried when the popover first opens (it failed at launch for unsigned builds)
+- Completion banner is more prominent (accent bar), the timer ring shows "Focus complete 🎉", and the menu bar shows "🍅 ✓" until dismissed
+
 ## [1.4.0] - 2026-08-16
 
 ### Added

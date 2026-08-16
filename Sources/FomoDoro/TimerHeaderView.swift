@@ -43,33 +43,40 @@ struct TimerHeaderView: View {
     // MARK: Completion banner
 
     private var completionBanner: some View {
-        VStack(alignment: .leading, spacing: 4) {
-            Text("Focus complete 🎉")
-                .font(.caption.weight(.semibold))
-            HStack {
-                if let completed = store.justCompletedFocus, let task = completed.taskTitle {
-                    Text("\(task) — \(completed.durationSeconds / 60) min focused")
-                        .font(.caption2)
-                        .foregroundStyle(.secondary)
-                        .lineLimit(1)
-                }
-                Spacer()
-                if store.currentKind == nil {
-                    Button("Start Break") {
-                        store.startBreak(.shortBreak)
+        HStack(spacing: 10) {
+            RoundedRectangle(cornerRadius: 2)
+                .fill(Color.red)
+                .frame(width: 3)
+                .frame(maxHeight: .infinity)
+            VStack(alignment: .leading, spacing: 4) {
+                Text("Focus complete 🎉")
+                    .font(.subheadline.weight(.semibold))
+                HStack {
+                    if let completed = store.justCompletedFocus, let task = completed.taskTitle {
+                        Text("\(task) — \(completed.durationSeconds / 60) min focused")
+                            .font(.caption)
+                            .foregroundStyle(.secondary)
+                            .lineLimit(1)
+                    }
+                    Spacer()
+                    if store.currentKind == nil {
+                        Button("Start Break") {
+                            store.startBreak(.shortBreak)
+                            store.dismissCompletionBanner()
+                        }
+                        .controlSize(.small)
+                    }
+                    Button("Done") {
                         store.dismissCompletionBanner()
                     }
                     .controlSize(.small)
                 }
-                Button("Done") {
-                    store.dismissCompletionBanner()
-                }
-                .controlSize(.small)
             }
         }
-        .padding(.horizontal, 14)
-        .padding(.vertical, 6)
-        .background(Color.red.opacity(0.08))
+        .padding(10)
+        .background(RoundedRectangle(cornerRadius: 8).fill(Color.red.opacity(0.12)))
+        .padding(.horizontal, 10)
+        .padding(.bottom, 6)
     }
 
     // MARK: Compact
@@ -109,9 +116,18 @@ struct TimerHeaderView: View {
 
     private var cycleDots: Int { store.cycleCount % AppSettings.longBreakInterval }
 
+    private var completionPending: Bool {
+        store.justCompletedFocus != nil && store.currentKind == nil
+    }
+
     private var expandedHeader: some View {
         VStack(spacing: 10) {
-            TimerRingView(progress: progress, remaining: store.displaySeconds, kind: store.currentKind)
+            TimerRingView(
+                progress: progress,
+                remaining: store.displaySeconds,
+                kind: store.currentKind,
+                showCompletion: completionPending
+            )
 
             HStack(spacing: 6) {
                 ForEach(0..<AppSettings.longBreakInterval, id: \.self) { i in
@@ -177,6 +193,7 @@ struct TimerRingView: View {
     let progress: Double
     let remaining: Int
     let kind: SessionKind?
+    let showCompletion: Bool
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
 
     var body: some View {
@@ -190,9 +207,9 @@ struct TimerRingView: View {
                 Text(timeString)
                     .font(.system(size: 28, weight: .semibold, design: .rounded))
                     .monospacedDigit()
-                Text(kind?.displayName ?? "Focus")
+                Text(showCompletion ? "Focus complete 🎉" : (kind?.displayName ?? "Focus"))
                     .font(.caption)
-                    .foregroundStyle(.secondary)
+                    .foregroundStyle(showCompletion ? Color.red : Color.secondary)
             }
         }
         .frame(width: 120, height: 120)

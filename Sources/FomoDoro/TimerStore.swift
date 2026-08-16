@@ -45,6 +45,7 @@ final class TimerStore: ObservableObject {
     var displaySeconds: Int { max(0, Int(remaining.rounded(.up))) }
 
     var menuBarText: String {
+        if justCompletedFocus != nil && currentKind == nil { return "🍅 ✓" }
         guard AppSettings.showMenuBarCountdown else { return "🍅" }
         switch phase {
         case .idle: return "🍅"
@@ -55,6 +56,7 @@ final class TimerStore: ObservableObject {
     var timeText: String { format(displaySeconds) }
 
     var voiceOverText: String {
+        if justCompletedFocus != nil && currentKind == nil { return "Focus complete" }
         let time = "\(displaySeconds / 60) minutes \(displaySeconds % 60) seconds"
         switch phase {
         case .idle: return "FomoDoro idle"
@@ -239,6 +241,18 @@ final class TimerStore: ObservableObject {
     func requestNotificationPermission() {
         guard notificationsAvailable else { return }
         UNUserNotificationCenter.current().requestAuthorization(options: [.alert, .sound]) { _, _ in }
+    }
+
+    // ponytail: authorization failed when requested at launch (unsigned accessory app);
+    // retry from the first popover open, when the app is active in the user's eyes.
+    func retryNotificationPermissionIfNeeded() {
+        guard notificationsAvailable else { return }
+        UNUserNotificationCenter.current().getNotificationSettings { settings in
+            guard settings.authorizationStatus == .notDetermined else { return }
+            Task { @MainActor [weak self] in
+                self?.requestNotificationPermission()
+            }
+        }
     }
 
     // MARK: - Persistence
