@@ -31,11 +31,11 @@ struct TimerHeaderView: View {
                     expandedHeader
                 }
             }
-            .animation(reduceMotion ? nil : .easeInOut(duration: 0.25), value: compact)
+            .animation(reduceMotion ? nil : .spring(response: 0.35, dampingFraction: 1.0), value: compact)
 
             if store.justCompletedFocus != nil {
                 completionBanner
-                    .animation(reduceMotion ? nil : .easeInOut(duration: 0.2), value: store.justCompletedFocus != nil)
+                    .animation(reduceMotion ? nil : .spring(response: 0.35, dampingFraction: 1.0), value: store.justCompletedFocus != nil)
             }
         }
     }

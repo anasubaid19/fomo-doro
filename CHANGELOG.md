@@ -2,6 +2,12 @@
 
 All notable changes to FomoDoro.
 
+## [1.6.0] - 2026-08-16
+
+### Changed
+
+- Popover no longer snaps between sizes: fixed window height with a smooth internal morph (critically damped spring) when switching tabs; content area grows on compact-header tabs; subtle tab content crossfade
+
 ## [1.5.0] - 2026-08-16
 
 ### Added
