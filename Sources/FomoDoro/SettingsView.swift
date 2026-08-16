@@ -45,6 +45,7 @@ struct SettingsView: View {
     @AppStorage("autostartNext") private var autostartNext = false
     @AppStorage("showMenuBarCountdown") private var showMenuBarCountdown = true
     @AppStorage("dailyGoal") private var dailyGoal = 8
+    @AppStorage("autoOpenPopoverOnCompletion") private var autoOpenPopoverOnCompletion = true
 
     @State private var launchError: String?
     @State private var updateResult: String?
@@ -78,6 +79,7 @@ struct SettingsView: View {
             }
             Section("Behavior") {
                 Toggle("Auto-start next session", isOn: $autostartNext)
+                Toggle("Auto-open popover when a session ends", isOn: $autoOpenPopoverOnCompletion)
                 Toggle("Show countdown in menu bar", isOn: $showMenuBarCountdown)
 
                 Picker("Completion sound", selection: $soundChoice) {

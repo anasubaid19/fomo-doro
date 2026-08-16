@@ -25,6 +25,7 @@ struct FomoDoroApp: App {
             try? await Task.sleep(for: .seconds(1))
             store.requestNotificationPermission()
         }
+        MenuBarController.shared.setup(store: store, container: c)
     }
 
     // ponytail: single-instance by process name so the dev binary and the .app bundle
@@ -47,14 +48,6 @@ struct FomoDoroApp: App {
     }
 
     var body: some Scene {
-        MenuBarExtra {
-            ContentView()
-                .modelContainer(container)
-                .environmentObject(store)
-        } label: {
-            Text(store.menuBarText)
-                .accessibilityLabel(store.voiceOverText)
-        }
-        .menuBarExtraStyle(.window)
+        Settings { EmptyView() }
     }
 }

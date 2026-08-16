@@ -5,6 +5,7 @@ A native macOS menu bar pomodoro timer with task tracking and focus analytics. S
 ## Features
 
 - **Menu bar countdown** — live timer in the menu bar, no dock icon
+- **Auto-opens on completion** — the popover appears when a session ends (optional setting)
 - **Pomodoro timer** — focus / short break / long break, configurable durations and long-break interval
 - **Cycle dots** — track your position in the 4-pomodoro cycle
 - **Next button** — mark the current phase done and jump to the next phase (advances the cycle)

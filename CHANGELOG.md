@@ -2,6 +2,16 @@
 
 All notable changes to FomoDoro.
 
+## [1.5.0] - 2026-08-16
+
+### Added
+
+- Popover opens automatically when a session ends (as if clicked), so you notice the phase change — setting: "Auto-open popover when a session ends"
+
+### Changed
+
+- Menu bar rebuilt on NSStatusItem + NSPopover (was MenuBarExtra) to enable programmatic popover control; click toggles, click-outside closes, same look
+
 ## [1.4.1] - 2026-08-16
 
 ### Fixed
