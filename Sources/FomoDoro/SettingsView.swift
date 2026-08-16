@@ -3,6 +3,39 @@ import AppKit
 import ServiceManagement
 import UniformTypeIdentifiers
 
+private enum Preset: String, CaseIterable, Identifiable {
+    case classic, deepWork, sprint, custom
+
+    var id: String { rawValue }
+
+    var focus: Int {
+        switch self {
+        case .classic: return 25
+        case .deepWork: return 50
+        case .sprint: return 15
+        case .custom: return 0
+        }
+    }
+
+    var shortBreak: Int {
+        switch self {
+        case .classic: return 5
+        case .deepWork: return 10
+        case .sprint: return 3
+        case .custom: return 0
+        }
+    }
+
+    var title: String {
+        switch self {
+        case .classic: return "Classic — 25/5"
+        case .deepWork: return "Deep Work — 50/10"
+        case .sprint: return "Sprint — 15/3"
+        case .custom: return "Custom"
+        }
+    }
+}
+
 struct SettingsView: View {
     @AppStorage("focusDuration") private var focus = 25
     @AppStorage("shortBreakDuration") private var shortBreak = 5
@@ -11,6 +44,7 @@ struct SettingsView: View {
     @AppStorage("soundChoice") private var soundChoice = "system:Glass"
     @AppStorage("autostartNext") private var autostartNext = false
     @AppStorage("showMenuBarCountdown") private var showMenuBarCountdown = true
+    @AppStorage("dailyGoal") private var dailyGoal = 8
 
     @State private var launchError: String?
     @State private var updateResult: String?
@@ -29,10 +63,18 @@ struct SettingsView: View {
         ScrollView {
             Form {
                 Section("Durations (minutes)") {
+                Picker("Preset", selection: presetBinding) {
+                    ForEach(Preset.allCases) { preset in
+                        Text(preset.title).tag(preset)
+                    }
+                }
                 Stepper("Focus: \(focus)", value: $focus, in: 1...120)
                 Stepper("Short break: \(shortBreak)", value: $shortBreak, in: 1...60)
                 Stepper("Long break: \(longBreak)", value: $longBreak, in: 1...120)
                 Stepper("Long break every: \(interval) sessions", value: $interval, in: 1...12)
+            }
+            Section("Goal") {
+                Stepper("Daily goal: \(dailyGoal) sessions", value: $dailyGoal, in: 1...24)
             }
             Section("Behavior") {
                 Toggle("Auto-start next session", isOn: $autostartNext)
@@ -125,6 +167,23 @@ struct SettingsView: View {
                 } catch {
                     launchError = "Unable to change this setting: \(error.localizedDescription)"
                 }
+            }
+        )
+    }
+
+    private var presetBinding: Binding<Preset> {
+        Binding(
+            get: {
+                let matches = Preset.allCases.filter {
+                    $0 != .custom && $0.focus == focus && $0.shortBreak == shortBreak && longBreak == 15
+                }
+                return matches.first ?? .custom
+            },
+            set: { newPreset in
+                guard newPreset != .custom else { return }
+                focus = newPreset.focus
+                shortBreak = newPreset.shortBreak
+                longBreak = 15
             }
         )
     }

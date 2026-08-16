@@ -14,6 +14,7 @@ enum AppSettings {
         static let soundChoice = "soundChoice"
         static let autostartNext = "autostartNext"
         static let showMenuBarCountdown = "showMenuBarCountdown"
+        static let dailyGoal = "dailyGoal"
     }
 
     static func registerDefaults() {
@@ -25,6 +26,7 @@ enum AppSettings {
             Key.soundEnabled: true,
             Key.autostartNext: false,
             Key.showMenuBarCountdown: true,
+            Key.dailyGoal: 8,
         ])
         if defaults.string(forKey: Key.soundChoice) == nil {
             let legacy = defaults.bool(forKey: Key.soundEnabled)
@@ -39,6 +41,7 @@ enum AppSettings {
     static var soundChoice: String { defaults.string(forKey: Key.soundChoice) ?? "system:Glass" }
     static var autostartNext: Bool { defaults.bool(forKey: Key.autostartNext) }
     static var showMenuBarCountdown: Bool { defaults.bool(forKey: Key.showMenuBarCountdown) }
+    static var dailyGoal: Int { defaults.integer(forKey: Key.dailyGoal) }
 }
 
 @MainActor

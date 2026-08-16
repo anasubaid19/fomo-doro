@@ -15,6 +15,7 @@ final class TimerStore: ObservableObject {
     @Published var remaining: Double = 0
     @Published var cycleCount: Int = 0
     @Published var activeTask: TaskItem?
+    @Published var justCompletedFocus: FocusSession?
 
     private let modelContext: ModelContext
     private var tickTask: Task<Void, Never>?
@@ -100,12 +101,19 @@ final class TimerStore: ObservableObject {
         switch phase {
         case .running(let k): phase = .paused(k)
         case .paused(let k): phase = .running(k)
-        case .idle: startFocus()
+        case .idle:
+            justCompletedFocus = nil
+            startFocus()
         }
         persistState()
     }
 
+    func dismissCompletionBanner() {
+        justCompletedFocus = nil
+    }
+
     func skip() {
+        justCompletedFocus = nil
         guard currentKind != nil else {
             startFocus()
             return
@@ -117,6 +125,7 @@ final class TimerStore: ObservableObject {
         resetToIdle()
         cycleCount = 0
         activeTask = nil
+        justCompletedFocus = nil
         persistState()
     }
 
@@ -173,6 +182,9 @@ final class TimerStore: ObservableObject {
         if !manual {
             playCompletionSound()
             sendNotification(for: kind)
+            if kind == .focus {
+                justCompletedFocus = session
+            }
         }
 
         advanceAfterCompletion(alwaysAdvance: manual)

@@ -6,9 +6,15 @@ struct AnalyticsView: View {
     @Query(sort: \FocusSession.start, order: .reverse) private var sessions: [FocusSession]
     @Query(sort: \TaskItem.sortOrder) private var tasks: [TaskItem]
 
-    private var today: Date { Calendar.current.startOfDay(for: Date()) }
+    private static let timeFormatter: DateFormatter = {
+        let formatter = DateFormatter()
+        formatter.dateFormat = "HH:mm"
+        return formatter
+    }()
 
+    private var today: Date { Calendar.current.startOfDay(for: Date()) }
     private var todaySessions: [FocusSession] { sessions.filter { $0.start >= today } }
+    private var allFocus: [FocusSession] { sessions.filter { $0.kind == .focus } }
     private var focusToday: [FocusSession] { todaySessions.filter { $0.kind == .focus } }
 
     private var focusCount: Int { focusToday.count }
@@ -19,9 +25,11 @@ struct AnalyticsView: View {
     private var tasksDoneToday: Int {
         tasks.filter { $0.isDone && ($0.completedAt ?? .distantPast) >= today }.count
     }
-    private var totalFocusHours: Int {
-        sessions.filter { $0.kind == .focus }.reduce(0) { $0 + $1.durationSeconds } / 3600
+    private var allTimeSeconds: Int { allFocus.reduce(0) { $0 + $1.durationSeconds } }
+    private var allTimeText: String {
+        "\(allTimeSeconds / 3600)h \(allTimeSeconds % 3600 / 60)m focused"
     }
+    private var last7TotalMinutes: Int { last7Days.reduce(0) { $0 + $1.minutes } }
 
     var body: some View {
         if sessions.isEmpty {
@@ -33,20 +41,31 @@ struct AnalyticsView: View {
         } else {
             ScrollView {
                 VStack(alignment: .leading, spacing: 14) {
+                    Text("Today").font(.headline)
                     HStack(spacing: 8) {
-                        StatBox(title: "Focus", value: "\(focusCount)")
+                        StatBox(title: "Sessions", value: "\(focusCount)")
                         StatBox(title: "Focus min", value: "\(focusMinutes)")
                         StatBox(title: "Break min", value: "\(breakMinutes)")
-                    }
-                    HStack(spacing: 8) {
                         StatBox(title: "Tasks done", value: "\(tasksDoneToday)")
-                        StatBox(title: "Streak", value: "\(streak()) 🔥")
-                        StatBox(title: "Total focus", value: "\(totalFocusHours)h")
                     }
 
-                    Text("Last 7 days — focus minutes")
-                        .font(.headline)
-                        .padding(.top, 4)
+                    dailyGoalRow
+
+                    Text("Streak").font(.headline)
+                    Text("🔥 \(streak()) days")
+                        .font(.title3.bold())
+                        .monospacedDigit()
+
+                    Text("All-time").font(.headline)
+                    Text(allTimeText)
+                        .font(.title3.bold())
+                        .monospacedDigit()
+
+                    Text("Last 7 days").font(.headline)
+                    HStack(spacing: 8) {
+                        StatBox(title: "Total", value: formatMinutes(last7TotalMinutes))
+                        StatBox(title: "Avg per day", value: formatMinutes(last7TotalMinutes / 7))
+                    }
 
                     Chart {
                         ForEach(last7Days) { day in
@@ -57,9 +76,55 @@ struct AnalyticsView: View {
                             .foregroundStyle(Color.red.gradient)
                         }
                     }
-                    .frame(height: 160)
+                    .frame(height: 140)
+
+                    Text("Session history — today").font(.headline)
+                    historyList
                 }
                 .padding(14)
+            }
+        }
+    }
+
+    private var dailyGoalRow: some View {
+        VStack(alignment: .leading, spacing: 4) {
+            ProgressView(value: min(Double(focusCount) / Double(max(AppSettings.dailyGoal, 1)), 1.0))
+                .tint(.red)
+            Text("Daily goal: \(focusCount) / \(AppSettings.dailyGoal) sessions")
+                .font(.caption)
+                .foregroundStyle(.secondary)
+                .monospacedDigit()
+        }
+    }
+
+    @ViewBuilder
+    private var historyList: some View {
+        if todaySessions.isEmpty {
+            Text("No sessions yet today")
+                .font(.caption)
+                .foregroundStyle(.secondary)
+        } else {
+            VStack(spacing: 6) {
+                ForEach(todaySessions) { session in
+                    HStack(spacing: 8) {
+                        Circle()
+                            .fill(session.kind.color)
+                            .frame(width: 6, height: 6)
+                        Text(Self.timeFormatter.string(from: session.start))
+                            .font(.caption)
+                            .monospacedDigit()
+                            .foregroundStyle(.secondary)
+                        Text(session.taskTitle ?? "—")
+                            .font(.caption)
+                            .lineLimit(1)
+                            .help(session.taskTitle ?? "")
+                        Spacer()
+                        Text("\(session.durationSeconds / 60) min")
+                            .font(.caption)
+                            .monospacedDigit()
+                            .foregroundStyle(.secondary)
+                    }
+                }
             }
         }
     }
@@ -72,8 +137,8 @@ struct AnalyticsView: View {
         for i in stride(from: 6, through: 0, by: -1) {
             let day = cal.date(byAdding: .day, value: -i, to: today)!
             let next = cal.date(byAdding: .day, value: 1, to: day)!
-            let minutes = sessions
-                .filter { $0.kind == .focus && $0.start >= day && $0.start < next }
+            let minutes = allFocus
+                .filter { $0.start >= day && $0.start < next }
                 .reduce(0) { $0 + $1.durationSeconds } / 60
             result.append(DayStat(id: day, label: formatter.string(from: day), minutes: minutes))
         }
@@ -82,7 +147,7 @@ struct AnalyticsView: View {
 
     private func streak() -> Int {
         let cal = Calendar.current
-        let days = Set(sessions.filter { $0.kind == .focus }.map { cal.startOfDay(for: $0.start) })
+        let days = Set(allFocus.map { cal.startOfDay(for: $0.start) })
         var streak = 0
         var day = today
         if !days.contains(day) {
@@ -94,6 +159,10 @@ struct AnalyticsView: View {
             day = prev
         }
         return streak
+    }
+
+    private func formatMinutes(_ minutes: Int) -> String {
+        minutes >= 60 ? "\(minutes / 60)h \(minutes % 60)m" : "\(minutes)m"
     }
 }
 

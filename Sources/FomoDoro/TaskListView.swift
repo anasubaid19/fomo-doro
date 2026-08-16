@@ -5,23 +5,41 @@ struct TaskListView: View {
     @Environment(\.modelContext) private var context
     @EnvironmentObject private var store: TimerStore
     @Query(sort: \TaskItem.sortOrder) private var tasks: [TaskItem]
+    @State private var isAdding = false
     @State private var newTitle = ""
+    @State private var newEstimate = 1
 
     var body: some View {
         VStack(spacing: 0) {
-            HStack(spacing: 6) {
-                TextField("Add a task…", text: $newTitle)
-                    .textFieldStyle(.roundedBorder)
-                    .onSubmit(addTask)
-                Button(action: addTask) {
-                    Image(systemName: "plus.circle.fill").font(.title3)
+            if isAdding {
+                VStack(spacing: 6) {
+                    TextField("Task name", text: $newTitle)
+                        .textFieldStyle(.roundedBorder)
+                        .onSubmit(addTask)
+                    HStack {
+                        Stepper("Sessions: \(newEstimate)", value: $newEstimate, in: 1...20)
+                        Spacer()
+                        Button("Cancel") { cancelAdd() }
+                        Button("Add", action: addTask)
+                            .buttonStyle(.borderedProminent)
+                            .disabled(newTitle.trimmingCharacters(in: .whitespaces).isEmpty)
+                    }
+                }
+                .padding(.horizontal, 10)
+                .padding(.vertical, 8)
+            } else {
+                Button {
+                    isAdding = true
+                    newTitle = ""
+                    newEstimate = 1
+                } label: {
+                    Label("Add Task", systemImage: "plus")
                 }
                 .buttonStyle(.borderless)
-                .accessibilityLabel("Add task")
-                .disabled(newTitle.trimmingCharacters(in: .whitespaces).isEmpty)
+                .padding(.horizontal, 10)
+                .padding(.vertical, 6)
+                .frame(maxWidth: .infinity, alignment: .leading)
             }
-            .padding(.horizontal, 10)
-            .padding(.vertical, 8)
 
             List {
                 ForEach(tasks) { task in
@@ -45,11 +63,11 @@ struct TaskListView: View {
             }
             .listStyle(.inset)
             .overlay {
-                if tasks.isEmpty {
+                if tasks.isEmpty && !isAdding {
                     ContentUnavailableView(
                         "No tasks yet",
                         systemImage: "checklist",
-                        description: Text("Add a task to track your pomodoros.")
+                        description: Text("Add a task to start tracking your focus.")
                     )
                 }
             }
@@ -61,10 +79,16 @@ struct TaskListView: View {
         guard !title.isEmpty else { return }
         let order = (tasks.map(\.sortOrder).max() ?? 0) + 1
         withAnimation(.timingCurve(0.23, 1, 0.32, 1, duration: 0.2)) {
-            context.insert(TaskItem(title: title, estimate: 1, sortOrder: order))
+            context.insert(TaskItem(title: title, estimate: newEstimate, sortOrder: order))
             try? context.save()
         }
+        cancelAdd()
+    }
+
+    private func cancelAdd() {
+        isAdding = false
         newTitle = ""
+        newEstimate = 1
     }
 
     private func delete(_ task: TaskItem) {
@@ -104,11 +128,18 @@ struct TaskRow: View {
             .buttonStyle(.borderless)
             .accessibilityLabel(task.isDone ? "Mark not done" : "Mark done")
 
-            Text(task.title)
-                .strikethrough(task.isDone)
-                .foregroundStyle(task.isDone ? Color.secondary : Color.primary)
-                .lineLimit(1)
-                .help(task.title)
+            VStack(alignment: .leading, spacing: 1) {
+                Text(task.title)
+                    .strikethrough(task.isDone)
+                    .foregroundStyle(task.isDone ? Color.secondary : Color.primary)
+                    .lineLimit(1)
+                    .help(task.title)
+                if store.activeTask === task {
+                    Text("Currently focusing")
+                        .font(.caption2)
+                        .foregroundStyle(.red)
+                }
+            }
 
             Spacer()
 
@@ -116,12 +147,6 @@ struct TaskRow: View {
                 .font(.caption)
                 .foregroundStyle(.secondary)
                 .accessibilityLabel("\(task.completed) of \(task.estimate) pomodoros completed")
-
-            if store.activeTask === task {
-                Image(systemName: "play.fill")
-                    .font(.caption2)
-                    .foregroundStyle(.blue)
-            }
         }
         .padding(.vertical, 2)
         .contextMenu {

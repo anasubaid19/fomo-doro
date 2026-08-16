@@ -23,14 +23,53 @@ struct TimerHeaderView: View {
     let compact: Bool
 
     var body: some View {
-        Group {
-            if compact {
-                compactHeader
-            } else {
-                expandedHeader
+        VStack(spacing: 0) {
+            Group {
+                if compact {
+                    compactHeader
+                } else {
+                    expandedHeader
+                }
+            }
+            .animation(reduceMotion ? nil : .easeInOut(duration: 0.25), value: compact)
+
+            if store.justCompletedFocus != nil {
+                completionBanner
+                    .animation(reduceMotion ? nil : .easeInOut(duration: 0.2), value: store.justCompletedFocus != nil)
             }
         }
-        .animation(reduceMotion ? nil : .easeInOut(duration: 0.25), value: compact)
+    }
+
+    // MARK: Completion banner
+
+    private var completionBanner: some View {
+        VStack(alignment: .leading, spacing: 4) {
+            Text("Focus complete 🎉")
+                .font(.caption.weight(.semibold))
+            HStack {
+                if let completed = store.justCompletedFocus, let task = completed.taskTitle {
+                    Text("\(task) — \(completed.durationSeconds / 60) min focused")
+                        .font(.caption2)
+                        .foregroundStyle(.secondary)
+                        .lineLimit(1)
+                }
+                Spacer()
+                if store.currentKind == nil {
+                    Button("Start Break") {
+                        store.startBreak(.shortBreak)
+                        store.dismissCompletionBanner()
+                    }
+                    .controlSize(.small)
+                }
+                Button("Done") {
+                    store.dismissCompletionBanner()
+                }
+                .controlSize(.small)
+            }
+        }
+        .padding(.horizontal, 14)
+        .padding(.vertical, 6)
+        .background(Color.red.opacity(0.08))
     }
 
     // MARK: Compact

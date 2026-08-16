@@ -2,6 +2,22 @@
 
 All notable changes to FomoDoro.
 
+## [1.4.0] - 2026-08-16
+
+### Added
+
+- Task creation via "+ Add Task" CTA with inline pomodoro estimate
+- "Currently focusing" label on the active task row
+- Completion banner: "Focus complete" with Start Break / Done actions
+- Daily goal setting and today progress in Stats
+- Pomodoro presets: Classic 25/5, Deep Work 50/10, Sprint 15/3, Custom
+- Session history (today's sessions) in Stats
+- Notes "Autosaved" status
+
+### Changed
+
+- Stats reorganized: Today / Daily goal / Streak / All-time / Last 7 days (with total & average)
+
 ## [1.3.0] - 2026-08-15
 
 ### Added
