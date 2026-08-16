@@ -10,6 +10,7 @@ struct SettingsView: View {
     @AppStorage("longBreakInterval") private var interval = 4
     @AppStorage("soundChoice") private var soundChoice = "system:Glass"
     @AppStorage("autostartNext") private var autostartNext = false
+    @AppStorage("showMenuBarCountdown") private var showMenuBarCountdown = true
 
     @State private var launchError: String?
     @State private var updateResult: String?
@@ -25,8 +26,9 @@ struct SettingsView: View {
     }
 
     var body: some View {
-        Form {
-            Section("Durations (minutes)") {
+        ScrollView {
+            Form {
+                Section("Durations (minutes)") {
                 Stepper("Focus: \(focus)", value: $focus, in: 1...120)
                 Stepper("Short break: \(shortBreak)", value: $shortBreak, in: 1...60)
                 Stepper("Long break: \(longBreak)", value: $longBreak, in: 1...120)
@@ -34,6 +36,7 @@ struct SettingsView: View {
             }
             Section("Behavior") {
                 Toggle("Auto-start next session", isOn: $autostartNext)
+                Toggle("Show countdown in menu bar", isOn: $showMenuBarCountdown)
 
                 Picker("Completion sound", selection: $soundChoice) {
                     Text("None").tag("none")
@@ -91,9 +94,13 @@ struct SettingsView: View {
                         }
                     }
                 }
+                Button("Quit FomoDoro") {
+                    NSApplication.shared.terminate(nil)
+                }
             }
+            }
+            .formStyle(.grouped)
         }
-        .formStyle(.grouped)
         .fileImporter(
             isPresented: $showFileImporter,
             allowedContentTypes: [.audio]

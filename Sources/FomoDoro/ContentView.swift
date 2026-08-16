@@ -1,6 +1,5 @@
 import SwiftUI
 import SwiftData
-import AppKit
 
 enum Tab: Hashable {
     case tasks, notes, stats, settings
@@ -12,7 +11,7 @@ struct ContentView: View {
 
     var body: some View {
         VStack(spacing: 0) {
-            TimerHeaderView()
+            TimerHeaderView(compact: tab != .tasks)
             Divider()
             Picker("", selection: $tab) {
                 Text("Tasks").tag(Tab.tasks)
@@ -33,16 +32,6 @@ struct ContentView: View {
                 }
             }
             .frame(width: 360, height: 380)
-
-            Divider()
-            HStack {
-                Spacer()
-                Button("Quit FomoDoro") { NSApplication.shared.terminate(nil) }
-                    .buttonStyle(.borderless)
-                    .font(.caption)
-                    .foregroundStyle(.secondary)
-            }
-            .padding(6)
         }
         .frame(width: 360)
     }

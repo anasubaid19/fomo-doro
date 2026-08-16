@@ -2,6 +2,20 @@
 
 All notable changes to FomoDoro.
 
+## [1.3.0] - 2026-08-15
+
+### Added
+
+- Compact timer header on Notes/Stats/Settings tabs (expanded timer stays on Tasks) with smooth transition
+- Cycle dots now show "2 of 4" plus a tooltip before the long break
+- "Show countdown in menu bar" setting
+
+### Changed
+
+- Smaller, tighter expanded timer (ring reduced ~20%)
+- Quit moved from the footer into Settings → About; footer removed
+- Settings tab scrolls instead of clipping
+
 ## [1.2.1] - 2026-08-15
 
 ### Fixed

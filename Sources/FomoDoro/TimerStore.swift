@@ -44,11 +44,14 @@ final class TimerStore: ObservableObject {
     var displaySeconds: Int { max(0, Int(remaining.rounded(.up))) }
 
     var menuBarText: String {
+        guard AppSettings.showMenuBarCountdown else { return "🍅" }
         switch phase {
         case .idle: return "🍅"
         case .running, .paused: return (isRunning ? "🍅 " : "⏸ ") + format(displaySeconds)
         }
     }
+
+    var timeText: String { format(displaySeconds) }
 
     var voiceOverText: String {
         let time = "\(displaySeconds / 60) minutes \(displaySeconds % 60) seconds"

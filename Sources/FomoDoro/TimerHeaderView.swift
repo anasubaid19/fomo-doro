@@ -1,7 +1,66 @@
 import SwiftUI
 
+extension SessionKind {
+    var displayName: String {
+        switch self {
+        case .focus: return "Focus"
+        case .shortBreak: return "Short Break"
+        case .longBreak: return "Long Break"
+        }
+    }
+
+    var color: Color {
+        switch self {
+        case .shortBreak, .longBreak: return .green
+        case .focus: return .red
+        }
+    }
+}
+
 struct TimerHeaderView: View {
     @EnvironmentObject private var store: TimerStore
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
+    let compact: Bool
+
+    var body: some View {
+        Group {
+            if compact {
+                compactHeader
+            } else {
+                expandedHeader
+            }
+        }
+        .animation(reduceMotion ? nil : .easeInOut(duration: 0.25), value: compact)
+    }
+
+    // MARK: Compact
+
+    private var compactHeader: some View {
+        HStack(spacing: 10) {
+            Circle()
+                .fill(store.currentKind?.color ?? Color.red)
+                .frame(width: 8, height: 8)
+            Text(store.currentKind?.displayName ?? "Focus")
+                .font(.subheadline)
+                .foregroundStyle(.secondary)
+            Spacer()
+            Text(store.timeText)
+                .font(.title3.weight(.semibold))
+                .monospacedDigit()
+            Button {
+                store.togglePause()
+            } label: {
+                Image(systemName: store.isRunning ? "pause.fill" : "play.fill")
+                    .padding(4)
+            }
+            .buttonStyle(.borderless)
+            .accessibilityLabel(store.isRunning ? "Pause" : "Start focus")
+        }
+        .padding(.horizontal, 14)
+        .padding(.vertical, 10)
+    }
+
+    // MARK: Expanded
 
     private var progress: Double {
         let total = store.totalForCurrentPhase
@@ -11,8 +70,8 @@ struct TimerHeaderView: View {
 
     private var cycleDots: Int { store.cycleCount % AppSettings.longBreakInterval }
 
-    var body: some View {
-        VStack(spacing: 12) {
+    private var expandedHeader: some View {
+        VStack(spacing: 10) {
             TimerRingView(progress: progress, remaining: store.displaySeconds, kind: store.currentKind)
 
             HStack(spacing: 6) {
@@ -21,12 +80,17 @@ struct TimerHeaderView: View {
                         .fill(i < cycleDots ? Color.red : Color.secondary.opacity(0.2))
                         .frame(width: 8, height: 8)
                 }
+                Text("\(cycleDots) of \(AppSettings.longBreakInterval)")
+                    .font(.caption2)
+                    .foregroundStyle(.secondary)
+                    .monospacedDigit()
             }
+            .help("Pomodoro \(cycleDots) of \(AppSettings.longBreakInterval) before long break")
 
             if let task = store.activeTask {
                 HStack(spacing: 4) {
                     Image(systemName: "play.fill").font(.caption2).foregroundStyle(.blue)
-                    Text(task.title).font(.caption).lineLimit(1)
+                    Text(task.title).font(.caption).lineLimit(1).help(task.title)
                 }
             } else {
                 Text("No active task").font(.caption).foregroundStyle(.secondary)
@@ -37,7 +101,7 @@ struct TimerHeaderView: View {
                     store.togglePause()
                 } label: {
                     Image(systemName: store.isRunning ? "pause.fill" : "play.fill")
-                        .font(.title2)
+                        .font(.title3)
                         .padding(4)
                 }
                 .buttonStyle(.borderless)
@@ -47,7 +111,7 @@ struct TimerHeaderView: View {
                     store.skip()
                 } label: {
                     Image(systemName: "forward.fill")
-                        .font(.title2)
+                        .font(.title3)
                         .padding(4)
                 }
                 .buttonStyle(.borderless)
@@ -57,16 +121,16 @@ struct TimerHeaderView: View {
                     store.reset()
                 } label: {
                     Image(systemName: "arrow.counterclockwise")
-                        .font(.title2)
+                        .font(.title3)
                         .padding(4)
                 }
                 .buttonStyle(.borderless)
                 .accessibilityLabel("Reset timer")
             }
-            .padding(.bottom, 4)
         }
         .padding(.horizontal)
-        .padding(.top, 12)
+        .padding(.top, 10)
+        .padding(.bottom, 6)
     }
 }
 
@@ -76,39 +140,23 @@ struct TimerRingView: View {
     let kind: SessionKind?
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
 
-    private var color: Color {
-        switch kind {
-        case .shortBreak, .longBreak: return .green
-        default: return .red
-        }
-    }
-
-    private var label: String {
-        switch kind {
-        case .focus: return "Focus"
-        case .shortBreak: return "Short Break"
-        case .longBreak: return "Long Break"
-        case nil: return "Focus"
-        }
-    }
-
     var body: some View {
         ZStack {
-            Circle().stroke(Color.secondary.opacity(0.2), lineWidth: 10)
+            Circle().stroke(Color.secondary.opacity(0.2), lineWidth: 8)
             Circle()
                 .trim(from: 0, to: reduceMotion ? 1 : max(0, min(1, progress)))
-                .stroke(color, style: StrokeStyle(lineWidth: 10, lineCap: .round))
+                .stroke(kind?.color ?? Color.red, style: StrokeStyle(lineWidth: 8, lineCap: .round))
                 .rotationEffect(.degrees(-90))
             VStack(spacing: 2) {
                 Text(timeString)
-                    .font(.system(size: 34, weight: .semibold, design: .rounded))
+                    .font(.system(size: 28, weight: .semibold, design: .rounded))
                     .monospacedDigit()
-                Text(label)
+                Text(kind?.displayName ?? "Focus")
                     .font(.caption)
                     .foregroundStyle(.secondary)
             }
         }
-        .frame(width: 150, height: 150)
+        .frame(width: 120, height: 120)
     }
 
     private var timeString: String {

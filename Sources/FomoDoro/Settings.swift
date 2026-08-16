@@ -13,6 +13,7 @@ enum AppSettings {
         static let soundEnabled = "soundEnabled" // legacy v1.0/v1.1 toggle, kept for migration
         static let soundChoice = "soundChoice"
         static let autostartNext = "autostartNext"
+        static let showMenuBarCountdown = "showMenuBarCountdown"
     }
 
     static func registerDefaults() {
@@ -23,6 +24,7 @@ enum AppSettings {
             Key.longBreakInterval: 4,
             Key.soundEnabled: true,
             Key.autostartNext: false,
+            Key.showMenuBarCountdown: true,
         ])
         if defaults.string(forKey: Key.soundChoice) == nil {
             let legacy = defaults.bool(forKey: Key.soundEnabled)
@@ -36,6 +38,7 @@ enum AppSettings {
     static var longBreakInterval: Int { defaults.integer(forKey: Key.longBreakInterval) }
     static var soundChoice: String { defaults.string(forKey: Key.soundChoice) ?? "system:Glass" }
     static var autostartNext: Bool { defaults.bool(forKey: Key.autostartNext) }
+    static var showMenuBarCountdown: Bool { defaults.bool(forKey: Key.showMenuBarCountdown) }
 }
 
 @MainActor
