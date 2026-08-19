@@ -1,7 +1,6 @@
 import SwiftUI
 import SwiftData
 import AppKit
-import UserNotifications
 
 @main
 struct FomoDoroApp: App {
@@ -17,8 +16,7 @@ struct FomoDoroApp: App {
         container = c
         _store = StateObject(wrappedValue: TimerStore(modelContext: c.mainContext))
         NSApplication.shared.setActivationPolicy(.accessory)
-        UNUserNotificationCenter.current().delegate = NotificationDelegate.shared
-        UpdateChecker.startBackgroundChecks()
+        _ = UpdateChecker.shared
         // ponytail: defer notification permission until after launch — requesting it during
         // App.init crashed CI binaries (pre-macOS-26 SDK) on macOS 26.
         Task { @MainActor [store] in

@@ -14,6 +14,7 @@ APP="FomoDoro Legacy.app"
 rm -rf "$APP"
 mkdir -p "$APP/Contents/MacOS" "$APP/Contents/Resources"
 cp "$BIN_DIR/FomoDoroLegacy" "$APP/Contents/MacOS/FomoDoroLegacy"
+./scripts/embed-sparkle.sh "$APP" "legacy/.build"
 
 TMP_PLIST="$(mktemp)"
 cp legacy/Info.plist "$TMP_PLIST"
@@ -38,5 +39,10 @@ sips -z 1024 1024 FomoDoro-icon.png --out "$ICONSET/icon_512x512@2x.png" >/dev/n
 iconutil -c icns "$ICONSET" -o FomoDoro-Legacy.icns
 cp FomoDoro-Legacy.icns "$APP/Contents/Resources/FomoDoro.icns"
 rm -rf "$ICONSET" FomoDoro-Legacy.icns
+
+# Seal the assembled bundle after adding resources. Sparkle's nested helpers keep
+# their upstream signatures; the outer app receives a valid ad-hoc signature.
+codesign --force --sign - "$APP"
+codesign --verify --deep --strict "$APP"
 
 echo "Built $APP (universal, macOS 12+)"

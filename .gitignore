@@ -10,4 +10,6 @@ FomoDoro-Legacy.iconset/
 FomoDoro-Legacy.icns
 FomoDoro-macOS12-13.dmg
 legacy-dmg-staging/
+appcast-modern.xml
+appcast-legacy.xml
 .DS_Store

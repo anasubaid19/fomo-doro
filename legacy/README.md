@@ -8,6 +8,7 @@ It is intentionally isolated from the main macOS 14+ package:
 - separate JSON data store in Application Support;
 - no SwiftData, Swift Charts, or macOS 14-only SwiftUI APIs;
 - universal release binary for Intel and Apple Silicon Macs.
+- a dedicated Sparkle feed that only installs the macOS 12-13 DMG.
 
 Build the app and DMG from the repository root:
 

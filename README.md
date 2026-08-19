@@ -13,7 +13,7 @@ A native macOS menu bar pomodoro timer with task tracking and focus analytics. S
 - **Tasks** — to-do list with pomodoro estimates; completed sessions auto-increment the active task
 - **Analytics** — today's focus/break minutes, streak, last-7-days chart, lifetime totals
 - **Notifications & sound** — on session completion, with a sound picker (system presets or your own audio file)
-- **Update notifications** — tells you when a new release is on GitHub
+- **Secure in-app updates** — downloads, verifies, installs, and relaunches through Sparkle
 - **Quick note** — scratchpad tab for jotting things down
 - **Launch at login** — optional
 - **Settings** — durations, long-break interval, sound, auto-start next session
@@ -26,6 +26,11 @@ Get the correct download from [Releases](https://github.com/anasubaid19/fomo-dor
 - **macOS 12 Monterey or macOS 13 Ventura:** `FomoDoro-macOS12-13.dmg`
 
 The legacy build keeps its data separately and does not replace or modify the macOS 14+ app.
+Each app also uses its own update feed, so it only downloads a compatible DMG.
+
+The first Sparkle-enabled release must be installed manually. After that, use
+**Settings → Check for updates…**; future releases can be downloaded and installed
+without opening a DMG.
 
 Then pick one of the installation options below.
 
@@ -73,7 +78,6 @@ open "FomoDoro Legacy.app"
 
 - Export analytics to CSV
 - iCloud sync
-- Auto-update via Sparkle (needs Apple Developer ID)
 
 ## License
 

@@ -24,5 +24,13 @@
     <true/>
     <key>NSHighResolutionCapable</key>
     <true/>
+    <key>SUFeedURL</key>
+    <string>https://github.com/anasubaid19/fomo-doro/releases/latest/download/appcast-legacy.xml</string>
+    <key>SUPublicEDKey</key>
+    <string>dE3i50/O6JuBPHBvxcQCzBuUTKbrml1U463zGuXKIZM=</string>
+    <key>SUEnableAutomaticChecks</key>
+    <true/>
+    <key>SUAutomaticallyUpdate</key>
+    <true/>
 </dict>
 </plist>

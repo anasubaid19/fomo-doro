@@ -48,8 +48,6 @@ struct SettingsView: View {
     @AppStorage("autoOpenPopoverOnCompletion") private var autoOpenPopoverOnCompletion = true
 
     @State private var launchError: String?
-    @State private var updateResult: String?
-    @State private var updateAvailable = false
     @State private var showFileImporter = false
 
     private var isCustomSound: Bool { soundChoice.hasPrefix("custom:") }
@@ -113,30 +111,8 @@ struct SettingsView: View {
             }
             Section("About") {
                 LabeledContent("Version", value: UpdateChecker.currentVersion)
-                HStack {
-                    Button("Check for updates") {
-                        Task {
-                            if let latest = await UpdateChecker.check() {
-                                updateResult = "FomoDoro \(latest) is available"
-                                updateAvailable = true
-                            } else {
-                                updateResult = "You're up to date"
-                                updateAvailable = false
-                            }
-                        }
-                    }
-                    if let result = updateResult {
-                        Text(result)
-                            .font(.caption)
-                            .foregroundStyle(.secondary)
-                    }
-                    if updateAvailable {
-                        Button("Download") {
-                            NSWorkspace.shared.open(
-                                URL(string: "https://github.com/anasubaid19/fomo-doro/releases/latest")!
-                            )
-                        }
-                    }
+                Button("Check for updates…") {
+                    UpdateChecker.shared.checkForUpdates()
                 }
                 Button("Quit FomoDoro") {
                     NSApplication.shared.terminate(nil)

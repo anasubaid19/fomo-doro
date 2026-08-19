@@ -28,9 +28,21 @@ jobs:
       - name: Package legacy DMG
         run: ./legacy/make-dmg.sh
 
+      - name: Generate signed Sparkle update feeds
+        env:
+          SPARKLE_EDDSA_PRIVATE_KEY: ${{ secrets.SPARKLE_EDDSA_PRIVATE_KEY }}
+        run: |
+          if [[ -z "$SPARKLE_EDDSA_PRIVATE_KEY" ]]; then
+            echo "Missing SPARKLE_EDDSA_PRIVATE_KEY repository secret" >&2
+            exit 1
+          fi
+          ./scripts/generate-appcasts.sh "$GITHUB_REF_NAME"
+
       - name: Upload release assets
         uses: softprops/action-gh-release@v2
         with:
           files: |
             FomoDoro.dmg
             FomoDoro-macOS12-13.dmg
+            appcast-modern.xml
+            appcast-legacy.xml
