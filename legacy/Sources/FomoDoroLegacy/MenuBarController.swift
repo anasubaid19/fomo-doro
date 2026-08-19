@@ -3,6 +3,23 @@ import SwiftUI
 import Combine
 
 @MainActor
+enum LegacyPopoverLayout {
+    static let contentSize = NSSize(width: 360, height: 651)
+
+    static func apply(to popover: NSPopover, contentViewController: NSViewController) {
+        contentViewController.preferredContentSize = contentSize
+        contentViewController.view.frame = NSRect(origin: .zero, size: contentSize)
+        popover.contentViewController = contentViewController
+        popover.contentSize = contentSize
+    }
+
+    static func restoreContentSize(of popover: NSPopover) {
+        guard popover.contentSize != contentSize else { return }
+        popover.contentSize = contentSize
+    }
+}
+
+@MainActor
 final class MenuBarController {
     static let shared = MenuBarController()
 
@@ -37,7 +54,7 @@ final class MenuBarController {
 
         let pop = NSPopover()
         pop.behavior = .transient
-        pop.contentViewController = hosting
+        LegacyPopoverLayout.apply(to: pop, contentViewController: hosting)
         popover = pop
 
         store.objectWillChange
@@ -81,6 +98,7 @@ final class MenuBarController {
 
     private func showPopover() {
         guard let popover, let button = statusItem?.button else { return }
+        LegacyPopoverLayout.restoreContentSize(of: popover)
         popover.show(relativeTo: button.bounds, of: button, preferredEdge: .minY)
         popover.contentViewController?.view.window?.makeKey()
         NSApp.activate(ignoringOtherApps: true)

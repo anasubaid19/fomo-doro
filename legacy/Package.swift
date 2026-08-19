@@ -17,6 +17,11 @@ let package = Package(
             linkerSettings: [
                 .unsafeFlags(["-Xlinker", "-rpath", "-Xlinker", "@executable_path/../Frameworks"])
             ]
+        ),
+        .testTarget(
+            name: "FomoDoroLegacyTests",
+            dependencies: ["FomoDoroLegacy"],
+            path: "Tests/FomoDoroLegacyTests"
         )
     ]
 )
