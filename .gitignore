@@ -4,4 +4,10 @@ FomoDoro.iconset/
 FomoDoro.icns
 FomoDoro.dmg
 dmg-staging/
+legacy/.build/
+FomoDoro Legacy.app/
+FomoDoro-Legacy.iconset/
+FomoDoro-Legacy.icns
+FomoDoro-macOS12-13.dmg
+legacy-dmg-staging/
 .DS_Store

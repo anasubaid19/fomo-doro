@@ -2,6 +2,19 @@
 
 All notable changes to FomoDoro.
 
+## [1.7.0] - 2026-08-19
+
+### Added
+
+- Separate FomoDoro Legacy build for macOS 12 Monterey and macOS 13 Ventura
+- Universal legacy binary for Intel and Apple Silicon Macs
+- JSON persistence and SwiftUI bar chart replacements for APIs unavailable before macOS 14
+- Second GitHub Release asset: `FomoDoro-macOS12-13.dmg`
+
+### Changed
+
+- Release workflow now publishes both the macOS 14+ and macOS 12–13 DMGs from the same version tag
+
 ## [1.6.0] - 2026-08-16
 
 ### Changed

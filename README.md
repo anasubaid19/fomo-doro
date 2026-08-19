@@ -20,7 +20,14 @@ A native macOS menu bar pomodoro timer with task tracking and focus analytics. S
 
 ## Install
 
-Get the latest `FomoDoro.dmg` from [Releases](https://github.com/anasubaid19/fomo-doro/releases), then pick one of the options below.
+Get the correct download from [Releases](https://github.com/anasubaid19/fomo-doro/releases):
+
+- **macOS 14 or newer:** `FomoDoro.dmg`
+- **macOS 12 Monterey or macOS 13 Ventura:** `FomoDoro-macOS12-13.dmg`
+
+The legacy build keeps its data separately and does not replace or modify the macOS 14+ app.
+
+Then pick one of the installation options below.
 
 > FomoDoro is a **menu bar app** — after it starts there is no window and no dock icon.
 > Look for the 🍅 in the top-right menu bar and click it.
@@ -47,7 +54,7 @@ open /Applications/FomoDoro.app
 
 ### Option C — Build from source
 
-Requirements: macOS 14+ with Xcode (Swift 6).
+Requirements: Xcode with Swift 6.
 
 ```sh
 git clone https://github.com/anasubaid19/fomo-doro.git
@@ -56,6 +63,10 @@ swift run                     # run in dev (no notifications in dev mode)
 # or build a bundle:
 ./scripts/build-app.sh        # builds FomoDoro.app
 open FomoDoro.app
+
+# macOS 12-13 compatibility build:
+./legacy/build-app.sh         # builds "FomoDoro Legacy.app"
+open "FomoDoro Legacy.app"
 ```
 
 ## Roadmap

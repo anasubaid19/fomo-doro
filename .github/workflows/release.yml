@@ -22,7 +22,15 @@ jobs:
       - name: Package DMG
         run: ./scripts/make-dmg.sh
 
-      - name: Upload release asset
+      - name: Build legacy app bundle (macOS 12-13)
+        run: ./legacy/build-app.sh
+
+      - name: Package legacy DMG
+        run: ./legacy/make-dmg.sh
+
+      - name: Upload release assets
         uses: softprops/action-gh-release@v2
         with:
-          files: FomoDoro.dmg
+          files: |
+            FomoDoro.dmg
+            FomoDoro-macOS12-13.dmg
