@@ -61,92 +61,134 @@ struct SettingsView: View {
 
     var body: some View {
         ScrollView {
-            Form {
-                Section("Durations (minutes)") {
-                Picker("Preset", selection: presetBinding) {
-                    ForEach(Preset.allCases) { preset in
-                        Text(preset.title).tag(preset)
-                    }
-                }
-                Stepper("Focus: \(focus)", value: $focus, in: 1...120)
-                Stepper("Short break: \(shortBreak)", value: $shortBreak, in: 1...60)
-                Stepper("Long break: \(longBreak)", value: $longBreak, in: 1...120)
-                Stepper("Long break every: \(interval) sessions", value: $interval, in: 1...12)
-            }
-            Section("Goal") {
-                Stepper("Daily goal: \(dailyGoal) sessions", value: $dailyGoal, in: 1...24)
-            }
-            Section("Behavior") {
-                Toggle("Auto-start next session", isOn: $autostartNext)
-                Toggle("Auto-open popover when a session ends", isOn: $autoOpenPopoverOnCompletion)
-                Toggle("Show countdown in menu bar", isOn: $showMenuBarCountdown)
-
-                Picker("Completion sound", selection: $soundChoice) {
-                    Text("None").tag("none")
-                    ForEach(SoundPlayer.systemPresets, id: \.self) { name in
-                        Text(name).tag("system:\(name)")
-                    }
-                    if isCustomSound {
-                        Text("Custom file").tag(soundChoice)
-                    }
-                }
-
-                HStack {
-                    Button("Choose sound file…") { showFileImporter = true }
-                    Button("Preview") { SoundPlayer.play(soundChoice) }
-                    if isCustomSound {
-                        Text(customFileName)
-                            .font(.caption)
-                            .foregroundStyle(.secondary)
-                            .lineLimit(1)
-                    }
-                }
-            }
-            Section("General") {
-                Toggle("Launch at login", isOn: launchAtLogin)
-                if let error = launchError {
-                    Text(error)
-                        .font(.caption)
-                        .foregroundStyle(.red)
-                }
-            }
-            Section("About") {
-                HStack {
-                    Text("Version")
-                    Spacer()
-                    Text(UpdateChecker.currentVersion)
-                        .foregroundStyle(.secondary)
-                }
-                HStack {
-                    Button("Check for updates") {
-                        Task {
-                            if let latest = await UpdateChecker.check() {
-                                updateResult = "FomoDoro \(latest) is available"
-                                updateAvailable = true
-                            } else {
-                                updateResult = "You're up to date"
-                                updateAvailable = false
+            VStack(alignment: .leading, spacing: 16) {
+                LegacySettingsSection(title: "Durations") {
+                    HStack(spacing: 12) {
+                        Text("Preset")
+                        Spacer(minLength: 8)
+                        Picker("Preset", selection: presetBinding) {
+                            ForEach(Preset.allCases) { preset in
+                                Text(preset.title).tag(preset)
                             }
                         }
+                        .labelsHidden()
+                        .frame(width: 190)
+                    }
+
+                    LegacyStepperRow(title: "Focus", value: $focus, range: 1...120, suffix: " min")
+                    LegacyStepperRow(title: "Short break", value: $shortBreak, range: 1...60, suffix: " min")
+                    LegacyStepperRow(title: "Long break", value: $longBreak, range: 1...120, suffix: " min")
+                    LegacyStepperRow(
+                        title: "Long break every",
+                        value: $interval,
+                        range: 1...12,
+                        suffix: " sessions"
+                    )
+                }
+
+                LegacySettingsSection(title: "Goal") {
+                    LegacyStepperRow(
+                        title: "Daily goal",
+                        value: $dailyGoal,
+                        range: 1...24,
+                        suffix: " sessions"
+                    )
+                }
+
+                LegacySettingsSection(title: "Behavior") {
+                    Toggle("Auto-start next session", isOn: $autostartNext)
+                        .toggleStyle(.checkbox)
+                    Toggle("Auto-open when session ends", isOn: $autoOpenPopoverOnCompletion)
+                        .toggleStyle(.checkbox)
+                    Toggle("Show countdown in menu bar", isOn: $showMenuBarCountdown)
+                        .toggleStyle(.checkbox)
+
+                    VStack(alignment: .leading, spacing: 8) {
+                        Text("Completion sound")
+                            .font(.subheadline.weight(.medium))
+                        Picker("Completion sound", selection: $soundChoice) {
+                            Text("None").tag("none")
+                            ForEach(SoundPlayer.systemPresets, id: \.self) { name in
+                                Text(name).tag("system:\(name)")
+                            }
+                            if isCustomSound {
+                                Text("Custom file").tag(soundChoice)
+                            }
+                        }
+                        .labelsHidden()
+                        .frame(maxWidth: .infinity)
+
+                        HStack(spacing: 8) {
+                            Button("Choose sound file…") { showFileImporter = true }
+                            Button("Preview") { SoundPlayer.play(soundChoice) }
+                            Spacer(minLength: 0)
+                        }
+                        if isCustomSound {
+                            Text(customFileName)
+                                .font(.caption)
+                                .foregroundStyle(.secondary)
+                                .lineLimit(1)
+                                .help(customFileName)
+                        }
+                    }
+                }
+
+                LegacySettingsSection(title: "General") {
+                    Toggle("Launch at login", isOn: launchAtLogin)
+                        .toggleStyle(.checkbox)
+                    if let error = launchError {
+                        Text(error)
+                            .font(.caption)
+                            .foregroundStyle(.red)
+                            .fixedSize(horizontal: false, vertical: true)
+                    }
+                }
+
+                LegacySettingsSection(title: "About") {
+                    HStack {
+                        Text("Version")
+                        Spacer()
+                        Text(UpdateChecker.currentVersion)
+                            .font(.caption)
+                            .foregroundStyle(.secondary)
+                            .monospacedDigit()
+                    }
+
+                    HStack(spacing: 8) {
+                        Button("Check for updates") {
+                            Task {
+                                if let latest = await UpdateChecker.check() {
+                                    updateResult = "FomoDoro \(latest) is available"
+                                    updateAvailable = true
+                                } else {
+                                    updateResult = "You're up to date"
+                                    updateAvailable = false
+                                }
+                            }
+                        }
+                        if updateAvailable {
+                            Button("Download") {
+                                NSWorkspace.shared.open(
+                                    URL(string: "https://github.com/anasubaid19/fomo-doro/releases/latest")!
+                                )
+                            }
+                        }
+                        Spacer(minLength: 0)
                     }
                     if let result = updateResult {
                         Text(result)
                             .font(.caption)
                             .foregroundStyle(.secondary)
+                            .fixedSize(horizontal: false, vertical: true)
                     }
-                    if updateAvailable {
-                        Button("Download") {
-                            NSWorkspace.shared.open(
-                                URL(string: "https://github.com/anasubaid19/fomo-doro/releases/latest")!
-                            )
-                        }
+                    Button("Quit FomoDoro") {
+                        NSApplication.shared.terminate(nil)
                     }
                 }
-                Button("Quit FomoDoro") {
-                    NSApplication.shared.terminate(nil)
-                }
             }
-            }
+            .padding(.horizontal, 14)
+            .padding(.top, 4)
+            .padding(.bottom, 14)
         }
         .fileImporter(
             isPresented: $showFileImporter,
@@ -187,5 +229,51 @@ struct SettingsView: View {
                 longBreak = 15
             }
         )
+    }
+}
+
+private struct LegacySettingsSection<Content: View>: View {
+    let title: String
+    private let content: Content
+
+    init(title: String, @ViewBuilder content: () -> Content) {
+        self.title = title
+        self.content = content()
+    }
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 8) {
+            Text(title)
+                .font(.headline)
+            VStack(alignment: .leading, spacing: 10) {
+                content
+            }
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .padding(12)
+            .background(
+                RoundedRectangle(cornerRadius: 10)
+                    .fill(Color.secondary.opacity(0.08))
+            )
+        }
+        .frame(maxWidth: .infinity, alignment: .leading)
+    }
+}
+
+private struct LegacyStepperRow: View {
+    let title: String
+    @Binding var value: Int
+    let range: ClosedRange<Int>
+    let suffix: String
+
+    var body: some View {
+        Stepper(value: $value, in: range) {
+            HStack(spacing: 8) {
+                Text(title)
+                Spacer(minLength: 8)
+                Text("\(value)\(suffix)")
+                    .foregroundStyle(.secondary)
+                    .monospacedDigit()
+            }
+        }
     }
 }

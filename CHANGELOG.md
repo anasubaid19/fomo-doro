@@ -2,6 +2,13 @@
 
 All notable changes to FomoDoro.
 
+## [1.7.1] - 2026-08-19
+
+### Fixed
+
+- Legacy Settings layout on macOS 12 now uses responsive single-column cards instead of the overflowing two-column Form style
+- Long toggle labels, stepper values, sound controls, and version information remain inside the 360-point menu-bar popover
+
 ## [1.7.0] - 2026-08-19
 
 ### Added
