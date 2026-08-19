@@ -1,6 +1,5 @@
 import SwiftUI
 import AppKit
-import UniformTypeIdentifiers
 
 private enum Preset: String, CaseIterable, Identifiable {
     case classic, deepWork, sprint, custom
@@ -47,7 +46,6 @@ struct SettingsView: View {
     @AppStorage("autoOpenPopoverOnCompletion") private var autoOpenPopoverOnCompletion = true
 
     @State private var launchError: String?
-    @State private var showFileImporter = false
 
     private var isCustomSound: Bool { soundChoice.hasPrefix("custom:") }
 
@@ -117,7 +115,11 @@ struct SettingsView: View {
                         .frame(maxWidth: .infinity)
 
                         HStack(spacing: 8) {
-                            Button("Choose sound file…") { showFileImporter = true }
+                            Button("Choose sound file…") {
+                                if let url = LegacySoundFilePicker.chooseAudioFile() {
+                                    soundChoice = "custom:\(url.path)"
+                                }
+                            }
                             Button("Preview") { SoundPlayer.play(soundChoice) }
                             Spacer(minLength: 0)
                         }
@@ -166,14 +168,6 @@ struct SettingsView: View {
             .padding(.horizontal, 14)
             .padding(.top, 4)
             .padding(.bottom, 14)
-        }
-        .fileImporter(
-            isPresented: $showFileImporter,
-            allowedContentTypes: [.audio]
-        ) { result in
-            if case .success(let url) = result {
-                soundChoice = "custom:\(url.path)"
-            }
         }
     }
 
