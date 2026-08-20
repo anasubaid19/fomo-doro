@@ -2,6 +2,13 @@
 
 All notable changes to FomoDoro.
 
+## [1.8.3] - 2026-08-20
+
+### Fixed
+
+- On macOS 14 and later, the popover now remains centered under the menu-bar item when starting, pausing, or completing a timer
+- The menu-bar item reserves countdown width only while the popover is visible or a session is active, preventing abrupt popover movement without wasting idle menu-bar space
+
 ## [1.7.1] - 2026-08-19
 
 ### Fixed
